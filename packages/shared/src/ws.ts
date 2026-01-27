@@ -5,7 +5,8 @@ export type WsMessageType =
   | "room-full"
   | "peer-joined"
   | "peer-left"
-  | "typing";
+  | "typing"
+  | "peer-typing";
 
 export type JoinRoomMessage = {
   type: "join-room";
@@ -35,7 +36,7 @@ export type PeerLeftMessage = {
 };
 
 export type PeerTypingMessage = {
-  type: "typing";
+  type: "peer-typing";
   text: string;
 };
 

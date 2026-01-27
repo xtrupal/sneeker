@@ -12,10 +12,10 @@ export default function MsgBox({ data }: MsgBoxProps) {
       style={{
         width: "450px",
         height: "200px",
-        border: "2px solid white",
+        border: "2px solid black",
         borderRadius: "12px",
         padding: "16px",
-        color: "white",
+        color: "orange",
         fontSize: "18px",
         fontFamily: "sans-serif monospace",
         overflowY: "auto",

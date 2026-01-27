@@ -1,5 +1,6 @@
 * {
-  padding: 0;
-  margin: 0;
-  background-color: rgb(14, 12, 12);
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "San Francisco", "Segoe UI", "Roboto", "Helvetica Neue", Arial, "Liberation Sans", sans-serif;
 }

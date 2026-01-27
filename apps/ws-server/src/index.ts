@@ -1,9 +1,13 @@
 import express from "express";
 import http from "http";
+import cors from "cors";
 import { WebSocketServer, WebSocket } from "ws";
 import { ClientToServerMessage, ServerToClientMessage } from "@repo/shared";
 
 const app = express();
+// Add cors as middleware
+app.use(cors());
+
 const server = http.createServer(app);
 
 const PORT = process.env.PORT || 3002;
@@ -21,9 +25,17 @@ wss.on("connection", (socket: WebSocket) => {
 
   socket.on("message", (raw) => {
     try {
-      const msg = JSON.parse(raw.toString()) as ClientToServerMessage;
+      const parsed = JSON.parse(raw.toString());
+
+      if (!parsed?.type) return;
+
+      const msg = parsed as ClientToServerMessage;
 
       if (msg.type === "join-room") {
+        if (socketToRoom.has(socket)) {
+          return;
+        }
+
         const { roomId } = msg;
 
         const room = rooms.get(roomId) ?? new Set<WebSocket>();
@@ -69,7 +81,7 @@ wss.on("connection", (socket: WebSocket) => {
           if (peer !== socket) {
             peer.send(
               JSON.stringify({
-                type: "typing",
+                type: "peer-typing",
                 text: msg.text,
               } satisfies ServerToClientMessage)
             );
