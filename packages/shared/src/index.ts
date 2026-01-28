@@ -9,7 +9,5 @@ export type {
   TypingMessage,
   RoomJoinedMessage,
   RoomFullMessage,
-  PeerJoinedMessage,
-  PeerLeftMessage,
   PeerTypingMessage,
 } from "./ws.js";

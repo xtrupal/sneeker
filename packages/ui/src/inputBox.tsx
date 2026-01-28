@@ -8,10 +8,18 @@ interface InputBoxProps {
   placeholder: string;
 }
 
+interface InputBoxProps {
+  value?: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+  disabled?: boolean;
+}
+
 export default function InputBox({
   value,
   onChange,
   placeholder,
+  disabled = false,
 }: InputBoxProps) {
   return (
     <textarea
@@ -34,6 +42,7 @@ export default function InputBox({
       value={value}
       placeholder={placeholder}
       onChange={(e) => onChange?.(e.target.value)}
+      disabled={disabled}
     />
   );
 }

@@ -2,9 +2,8 @@
 export type WsMessageType =
   | "join-room"
   | "room-joined"
+  | "room-state"
   | "room-full"
-  | "peer-joined"
-  | "peer-left"
   | "typing"
   | "peer-typing";
 
@@ -23,16 +22,13 @@ export type RoomJoinedMessage = {
   roomId: string;
 };
 
+export type RoomStateMessage = {
+  type: "room-state";
+  peerCount: number; // 0 or 1 (excluding self)
+};
+
 export type RoomFullMessage = {
   type: "room-full";
-};
-
-export type PeerJoinedMessage = {
-  type: "peer-joined";
-};
-
-export type PeerLeftMessage = {
-  type: "peer-left";
 };
 
 export type PeerTypingMessage = {
@@ -44,7 +40,6 @@ export type ClientToServerMessage = JoinRoomMessage | TypingMessage;
 
 export type ServerToClientMessage =
   | RoomJoinedMessage
+  | RoomStateMessage
   | RoomFullMessage
-  | PeerJoinedMessage
-  | PeerLeftMessage
   | PeerTypingMessage;

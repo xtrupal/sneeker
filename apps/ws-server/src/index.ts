@@ -16,8 +16,40 @@ const wss = new WebSocketServer({ server });
 const rooms = new Map<string, Set<WebSocket>>();
 const socketToRoom = new Map<WebSocket, string>();
 
+function broadcastRoomState(roomId: string) {
+  const room = rooms.get(roomId);
+  if (!room) return;
+
+  room.forEach((client) => {
+    const peerCount = room.size - 1;
+    client.send(
+      JSON.stringify({
+        type: "room-state",
+        peerCount: peerCount,
+      } satisfies ServerToClientMessage)
+    );
+  });
+}
+
 app.get("/", (req, res) => {
-  res.json({ rooms: rooms.size });
+  const roomSummary = Array.from(rooms.entries()).map(([roomId, clients]) => ({
+    roomId,
+    numClients: clients.size,
+    clients: Array.from(clients).map((client, i) => `socket#${i + 1}`),
+  }));
+  const socketToRoomEntries = Array.from(socketToRoom.entries()).map(
+    ([socket, roomId], idx) => ({
+      socket: `socket#${idx + 1}`,
+      roomId,
+    })
+  );
+
+  res.json({
+    totalRooms: rooms.size,
+    rooms: roomSummary,
+    connectedSockets: socketToRoom.size,
+    socketToRoom: socketToRoomEntries,
+  });
 });
 
 wss.on("connection", (socket: WebSocket) => {
@@ -57,15 +89,8 @@ wss.on("connection", (socket: WebSocket) => {
           } satisfies ServerToClientMessage)
         );
 
-        room.forEach((peer) => {
-          if (peer !== socket) {
-            peer.send(
-              JSON.stringify({
-                type: "peer-joined",
-              } satisfies ServerToClientMessage)
-            );
-          }
-        });
+        // Broadcast room state to all clients in room
+        broadcastRoomState(roomId);
 
         console.log(`Client joined room: ${roomId}`);
       }
@@ -76,6 +101,10 @@ wss.on("connection", (socket: WebSocket) => {
 
         const room = rooms.get(roomId);
         if (!room) return;
+
+        if (msg.text.length > 500) {
+          msg.text = msg.text.slice(0, 500);
+        }
 
         room.forEach((peer) => {
           if (peer !== socket) {
@@ -102,13 +131,8 @@ wss.on("connection", (socket: WebSocket) => {
     room.delete(socket);
     socketToRoom.delete(socket);
 
-    room.forEach((peer) => {
-      peer.send(
-        JSON.stringify({
-          type: "peer-left",
-        } satisfies ServerToClientMessage)
-      );
-    });
+    // Broadcast room state to remaining clients
+    broadcastRoomState(roomId);
 
     if (room.size === 0) {
       rooms.delete(roomId);

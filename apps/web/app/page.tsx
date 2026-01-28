@@ -57,7 +57,7 @@ export default function HomePage() {
             </span>
           </div>
           <div>
-            <span> {roomId}</span>
+            <span style={{ color: "blue" }}>localhost:3000/room/{roomId}</span>
           </div>
           <button
             onClick={goToRoom}
