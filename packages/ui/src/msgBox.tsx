@@ -9,20 +9,21 @@ interface MsgBoxProps {
 export default function MsgBox({ data }: MsgBoxProps) {
   return (
     <div
+      className="msgbox-scroll"
       style={{
-        width: "450px",
-        height: "200px",
-        border: "2px solid black",
-        borderRadius: "12px",
-        padding: "16px",
-        color: "orange",
-        fontSize: "18px",
-        fontFamily: "sans-serif monospace",
+        width: "470px",
+        height: "270px",
+        borderRadius: "14px",
+        padding: "18px",
+        background: "#161a23",
+        border: "1px solid #2a2f3a",
+        color: "#e5e7eb",
+        fontFamily: '"JetBrains Mono", monospace',
+        fontSize: "16px",
+        lineHeight: "1.6",
         overflowY: "auto",
         whiteSpace: "pre-wrap",
         wordBreak: "break-word",
-        scrollbarWidth: "thin",
-        scrollbarColor: "white transparent",
       }}
     >
       {data}

@@ -1,10 +1,9 @@
-import { ReactNode } from "react";
+"use client";
 
-type ButtonVariant = "primary" | "secondary";
+import { ReactNode } from "react";
 
 interface ButtonProps {
   children: ReactNode;
-  variant?: ButtonVariant;
   onClick: () => void;
   disabled?: boolean;
 }
@@ -13,23 +12,28 @@ export default function Button({
   children,
   onClick,
   disabled = false,
-  variant = "primary",
 }: ButtonProps) {
   return (
     <button
       onClick={onClick}
       disabled={disabled}
       style={{
-        padding: "0.6em 1.2em",
-        fontSize: "18px",
-        fontWeight: "600",
-        margin: "5px",
-        borderRadius: "8px",
-        boxShadow: "0.1em 0.1e",
-        border: "3px solid black",
-        color: "black",
+        padding: "10px 16px",
+        borderRadius: "10px",
+        fontSize: "14px",
+        fontWeight: 500,
+        background: "#1f2937",
+        color: "#e5e7eb",
+        border: "none",
         cursor: disabled ? "not-allowed" : "pointer",
-        backgroundColor: variant === "primary" ? "#fbca1f" : "gray",
+        opacity: disabled ? 0.5 : 1,
+        transition: "background 0.2s ease",
+      }}
+      onMouseEnter={(e) => {
+        if (!disabled) e.currentTarget.style.background = "#374151";
+      }}
+      onMouseLeave={(e) => {
+        if (!disabled) e.currentTarget.style.background = "#1f2937";
       }}
     >
       {children}
