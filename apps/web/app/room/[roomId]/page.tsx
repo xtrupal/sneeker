@@ -18,7 +18,7 @@ export default function RoomPage() {
   function handleInputChange(value: string) {
     setMyText(value);
 
-    if (!connected) return;
+    if (!connected || !peerOnline) return;
 
     const msg: ClientToServerMessage = {
       type: "typing",

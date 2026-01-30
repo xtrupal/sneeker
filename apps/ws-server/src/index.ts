@@ -16,21 +16,6 @@ const wss = new WebSocketServer({ server });
 const rooms = new Map<string, Set<WebSocket>>();
 const socketToRoom = new Map<WebSocket, string>();
 
-function broadcastRoomState(roomId: string) {
-  const room = rooms.get(roomId);
-  if (!room) return;
-
-  room.forEach((client) => {
-    const peerCount = room.size - 1;
-    client.send(
-      JSON.stringify({
-        type: "room-state",
-        peerCount: peerCount,
-      } satisfies ServerToClientMessage)
-    );
-  });
-}
-
 app.get("/", (req, res) => {
   const roomSummary = Array.from(rooms.entries()).map(([roomId, clients]) => ({
     roomId,
@@ -51,6 +36,21 @@ app.get("/", (req, res) => {
     socketToRoom: socketToRoomEntries,
   });
 });
+
+function broadcastRoomState(roomId: string) {
+  const room = rooms.get(roomId);
+  if (!room) return;
+
+  room.forEach((client) => {
+    const peerCount = room.size - 1; // correct for THIS client
+    client.send(
+      JSON.stringify({
+        type: "room-state",
+        peerCount,
+      } satisfies ServerToClientMessage)
+    );
+  });
+}
 
 wss.on("connection", (socket: WebSocket) => {
   console.log("New client connected");
@@ -82,15 +82,14 @@ wss.on("connection", (socket: WebSocket) => {
         rooms.set(roomId, room);
         socketToRoom.set(socket, roomId);
 
+        broadcastRoomState(roomId);
+
         socket.send(
           JSON.stringify({
             type: "room-joined",
             roomId,
           } satisfies ServerToClientMessage)
         );
-
-        // Broadcast room state to all clients in room
-        broadcastRoomState(roomId);
 
         console.log(`Client joined room: ${roomId}`);
       }
@@ -131,12 +130,12 @@ wss.on("connection", (socket: WebSocket) => {
     room.delete(socket);
     socketToRoom.delete(socket);
 
-    // Broadcast room state to remaining clients
-    broadcastRoomState(roomId);
-
     if (room.size === 0) {
       rooms.delete(roomId);
-      console.log(`Room ${roomId} deleted as it became empty`);
+      console.log(`Room ${roomId} deleted as it became empty.`);
+    } else {
+      broadcastRoomState(roomId);
+      console.log(`Client left room: ${roomId}. Remaining: ${room.size}`);
     }
 
     console.log("Client disconnected");
